@@ -1,0 +1,23 @@
+name: Integration Tests (Nightly)
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with: { version: 9 }
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run test:integration
+        env:
+          CLAWCHAIN_ENDPOINT: wss://testnet.clawchain.win:9944
+          TEST_SIGNER_MNEMONIC: ${{ secrets.TEST_SIGNER_MNEMONIC }}
