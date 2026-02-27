@@ -1,22 +1,21 @@
 # Changelog
 
-All notable changes to `@clawchain/sdk` will be documented in this file.
+## [1.0.0] - 2026-02-27
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+### First Stable Release 🎉
 
-## [0.1.0-alpha.1] — 2026-02-27
+**What's included:**
+- Full TypeScript SDK for ClawChain L1
+- Support for all 12 pallets: agent-did, agent-receipts, agent-registry, claw-token, gas-quota, quadratic-governance, reputation, rpc-registry, task-market, ibc-lite, anon-messaging, service-market
+- 114 tests, 99.48% coverage
+- WebSocket connection management
+- Type-safe extrinsic submission
+- Query helpers for all pallet storage
 
-### Added
-- Initial alpha release of `@clawchain/sdk`
-- `ClawChainClient` with `connect()`, `disconnect()`, `health()`, `isConnected()`, `getApi()`
-- `AgentModule` — `getOwnerAgents`, `getAgent`, `requireAgent`, `resolveDid`, `listAgents`, `listAgentsByOwner`
-- `ReputationModule` — `getReputation`, `getAgentReputation`, `getHistory`, `getLeaderboard`
-- `QuotaModule` — `getQuota`, `hasQuota`, `estimate`, `getUsageHistory`
-- `TokenModule` — `getBalance`, `getBalances`, `getTotalSupply`, `getMetadata`
-- Full TypeScript type definitions for all modules
-- Typed error hierarchy (`ClawChainError` and 9 subclasses)
-- `@clawchain/sdk/testing` entry with `createMockClient()`, `createMockApi()`, and fixtures
-- 114 unit tests, 91.46% branch coverage
-- Dual CJS + ESM output via tsup
-- GitHub Actions CI (test + build + nightly integration)
+**Bug fixes:**
+- Fixed TypeScript strict-mode errors in `TokenModule` (non-null assertions for polkadot API query objects under `noUncheckedIndexedAccess`)
+
+**Installation:**
+```bash
+npm install @clawchain/sdk
+```

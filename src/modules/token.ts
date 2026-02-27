@@ -22,7 +22,8 @@ export class TokenModule {
     if (!address) throw new InvalidArgumentError('address is required')
     this.logger.debug('TokenModule.getBalance', { address })
 
-    const result = await this.api.query.system.account(address)
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const result = await this.api.query['system']!['account']!(address)
     return decodeTokenBalance(result)
   }
 
@@ -48,7 +49,8 @@ export class TokenModule {
    */
   async getTotalSupply(): Promise<bigint> {
     this.logger.debug('TokenModule.getTotalSupply')
-    const result = await this.api.query.balances.totalIssuance()
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const result = await this.api.query['balances']!['totalIssuance']!()
     return BigInt(result.toString())
   }
 
