@@ -17,5 +17,9 @@
 
 **Installation:**
 ```bash
-npm install @clawchain/sdk
+npm install clawchain-sdk
 ```
+
+### Package
+- Published to npm as `clawchain-sdk` (unscoped, free tier)
+- Install: `npm install clawchain-sdk`

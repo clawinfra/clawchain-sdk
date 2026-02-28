@@ -71,7 +71,7 @@ export class TokenModule {
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async transfer(_to: string, _amount: bigint, _signer: unknown, _opts?: TransferOpts): Promise<never> {
-    throw new Error('transfer() is available in Phase 2 (write API). Use @clawchain/sdk >= 0.2.0')
+    throw new Error('transfer() is available in Phase 2 (write API). Use clawchain-sdk >= 0.2.0')
   }
 
   /**
@@ -79,6 +79,6 @@ export class TokenModule {
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async transferWithNote(_to: string, _amount: bigint, _note: string, _signer: unknown): Promise<never> {
-    throw new Error('transferWithNote() is available in Phase 2 (write API). Use @clawchain/sdk >= 0.2.0')
+    throw new Error('transferWithNote() is available in Phase 2 (write API). Use clawchain-sdk >= 0.2.0')
   }
 }

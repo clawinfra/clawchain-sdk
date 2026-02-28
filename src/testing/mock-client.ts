@@ -6,7 +6,7 @@
  *
  * @example
  * ```ts
- * import { createMockClient } from '@clawchain/sdk/testing'
+ * import { createMockClient } from 'clawchain-sdk/testing'
  *
  * const mock = createMockClient({
  *   agents: [mockAgentFixture],

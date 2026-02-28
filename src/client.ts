@@ -2,7 +2,7 @@
  * ClawChainClient — main entry point to the SDK
  *
  * Usage:
- *   import { ClawChainClient } from '@clawchain/sdk'
+ *   import { ClawChainClient } from 'clawchain-sdk'
  *   const client = await ClawChainClient.connect({ endpoint: 'wss://testnet.clawchain.win:9944' })
  */
 

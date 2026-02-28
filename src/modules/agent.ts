@@ -149,7 +149,7 @@ export class AgentModule {
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async register(_params: RegisterAgentParams, _signer: unknown): Promise<never> {
-    throw new Error('register() is available in Phase 2 (write API). Use @clawchain/sdk >= 0.2.0')
+    throw new Error('register() is available in Phase 2 (write API). Use clawchain-sdk >= 0.2.0')
   }
 
   /**
@@ -157,7 +157,7 @@ export class AgentModule {
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async update(_agentId: AgentId, _params: UpdateAgentParams, _signer: unknown): Promise<never> {
-    throw new Error('update() is available in Phase 2 (write API). Use @clawchain/sdk >= 0.2.0')
+    throw new Error('update() is available in Phase 2 (write API). Use clawchain-sdk >= 0.2.0')
   }
 
   /**
@@ -165,6 +165,6 @@ export class AgentModule {
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async deactivate(_agentId: AgentId, _signer: unknown): Promise<never> {
-    throw new Error('deactivate() is available in Phase 2 (write API). Use @clawchain/sdk >= 0.2.0')
+    throw new Error('deactivate() is available in Phase 2 (write API). Use clawchain-sdk >= 0.2.0')
   }
 }

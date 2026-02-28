@@ -1,5 +1,5 @@
 /**
- * @clawchain/sdk/testing — Mock utilities for unit testing
+ * clawchain-sdk/testing — Mock utilities for unit testing
  *
  * Import from this entry point only in test code.
  * Zero production overhead — this module is not included in the main bundle.

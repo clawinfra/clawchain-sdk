@@ -1,11 +1,11 @@
 /**
- * @clawchain/sdk — TypeScript SDK for ClawChain
+ * clawchain-sdk — TypeScript SDK for ClawChain
  *
  * The L1 blockchain for autonomous agents.
  *
  * @example
  * ```ts
- * import { ClawChainClient } from '@clawchain/sdk'
+ * import { ClawChainClient } from 'clawchain-sdk'
  *
  * const client = await ClawChainClient.connect({
  *   endpoint: 'wss://testnet.clawchain.win:9944',
