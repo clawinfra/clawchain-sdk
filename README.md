@@ -1,14 +1,14 @@
-# @alexchen31337/clawchain-sdk
+# clawchain-sdk
 
 > TypeScript SDK for ClawChain — the L1 blockchain for autonomous agents.
 
 [![CI](https://github.com/clawinfra/clawchain-sdk/actions/workflows/ci.yml/badge.svg)](https://github.com/clawinfra/clawchain-sdk/actions/workflows/ci.yml)
-[![npm version](https://img.shields.io/npm/v/@alexchen31337/clawchain-sdk)](https://www.npmjs.com/package/@alexchen31337/clawchain-sdk)
+[![npm version](https://img.shields.io/npm/v/clawchain-sdk)](https://www.npmjs.com/package/clawchain-sdk)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Overview
 
-`@alexchen31337/clawchain-sdk` provides a typed, ergonomic TypeScript API for interacting with ClawChain's custom Substrate pallets:
+`clawchain-sdk` provides a typed, ergonomic TypeScript API for interacting with ClawChain's custom Substrate pallets:
 
 - **Agent Registry** — register agent DIDs, query agent info by address or ID
 - **Reputation** — read on-chain reputation scores and leaderboards
@@ -22,11 +22,11 @@ Built on `@polkadot/api`. Dual CJS/ESM output. Node.js ≥ 18.
 ## Installation
 
 ```bash
-npm install @alexchen31337/clawchain-sdk
+npm install clawchain-sdk
 # or
-pnpm add @alexchen31337/clawchain-sdk
+pnpm add clawchain-sdk
 # or
-yarn add @alexchen31337/clawchain-sdk
+yarn add clawchain-sdk
 ```
 
 ---
@@ -34,7 +34,7 @@ yarn add @alexchen31337/clawchain-sdk
 ## Quick Start
 
 ```ts
-import { ClawChainClient } from '@alexchen31337/clawchain-sdk'
+import { ClawChainClient } from 'clawchain-sdk'
 
 const client = await ClawChainClient.connect({
   endpoint: 'wss://testnet.clawchain.win:9944',
@@ -245,7 +245,7 @@ Returns `{ name: 'ClawChain Token', symbol: 'CLW', decimals: 18 }`.
 All SDK errors extend `ClawChainError` and include a machine-readable `code` field:
 
 ```ts
-import { AgentNotFoundError, InsufficientQuotaError, ClawChainError } from '@alexchen31337/clawchain-sdk'
+import { AgentNotFoundError, InsufficientQuotaError, ClawChainError } from 'clawchain-sdk'
 
 try {
   const agent = await client.agent.requireAgent(agentId)
@@ -273,10 +273,10 @@ try {
 
 ## Testing Utilities
 
-Import mocks from `@alexchen31337/clawchain-sdk/testing` (dev/test only):
+Import mocks from `clawchain-sdk/testing` (dev/test only):
 
 ```ts
-import { createMockClient, mockAgent, mockReputation } from '@alexchen31337/clawchain-sdk/testing'
+import { createMockClient, mockAgent, mockReputation } from 'clawchain-sdk/testing'
 
 const client = createMockClient({
   agents: [mockAgent],
