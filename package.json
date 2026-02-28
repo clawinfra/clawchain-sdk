@@ -31,7 +31,7 @@
     "test:watch": "vitest",
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "test:coverage": "vitest run --coverage",
-    "lint": "eslint src tests --ext .ts",
+    "lint": "eslint src",
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "pnpm run build && pnpm run typecheck && pnpm run test"
   },
