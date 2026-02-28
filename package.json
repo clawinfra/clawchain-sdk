@@ -1,5 +1,5 @@
 {
-  "name": "@clawchain/sdk",
+  "name": "@alexchen31337/clawchain-sdk",
   "version": "1.0.0",
   "description": "TypeScript SDK for ClawChain — the L1 blockchain for autonomous agents",
   "license": "MIT",
