@@ -17,6 +17,16 @@ jobs:
           node-version: '20'
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
+
+      # Quick TCP reachability check — warn but don't block the job.
+      # The integration tests themselves skip gracefully when offline.
+      - name: Check testnet reachability
+        run: |
+          nc -zw 5 testnet.clawchain.win 9944 \
+            && echo "✅ Testnet reachable" \
+            || echo "⚠️  Testnet unreachable — integration tests will be skipped"
+        continue-on-error: true
+
       - run: pnpm run test:integration
         env:
           CLAWCHAIN_ENDPOINT: wss://testnet.clawchain.win:9944
