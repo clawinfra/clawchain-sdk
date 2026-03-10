@@ -277,9 +277,9 @@ export function createMockApi(opts: MockApiOptions = {}): unknown {
 
     // v2: tx submission mock
     tx: new Proxy({} as Record<string, Record<string, () => unknown>>, {
-      get: (_target, pallet: string) => {
+      get: (_target, _pallet: string) => {
         return new Proxy({} as Record<string, () => unknown>, {
-          get: (_t, method: string) => {
+          get: (_t, _method: string) => {
             return (..._args: unknown[]) => {
               const ex = makeMockExtrinsic()
               return ex

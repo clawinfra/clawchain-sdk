@@ -24,7 +24,7 @@ import type { ChainEvent, TxResult } from '../types/common.js'
 import type { Logger } from '../types/common.js'
 import { DispatchError, TxTimeoutError, NonceTooLowError, SignerError } from '../errors.js'
 import type { ClawChainSigner } from '../signer/types.js'
-import type { DryRunResult, SubmitOpts, TxStatus } from './types.js'
+import type { DryRunResult, SubmitOpts } from './types.js'
 import { KeypairSigner } from '../signer/keypair-signer.js'
 import { noopLogger } from '../utils/logger.js'
 
