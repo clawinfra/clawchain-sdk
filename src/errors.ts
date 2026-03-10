@@ -137,3 +137,95 @@ export class InvalidArgumentError extends ClawChainError {
     this.name = 'InvalidArgumentError'
   }
 }
+
+// ── v2 additions ─────────────────────────────────────────────────────────────
+
+/** Signer-related errors (key derivation, signing callback failure) */
+export class SignerError extends ClawChainError {
+  constructor(message: string, cause?: unknown) {
+    super(message, 'SIGNER_ERROR', cause)
+    this.name = 'SignerError'
+  }
+}
+
+/** Transaction was submitted but dispatch failed on-chain */
+export class DispatchError extends TransactionError {
+  readonly module: string
+  readonly errorName: string
+
+  constructor(module: string, errorName: string, details: string, dispatchError?: unknown) {
+    super(`${module}.${errorName}: ${details}`, dispatchError)
+    this.name = 'DispatchError'
+    this.module = module
+    this.errorName = errorName
+  }
+}
+
+/** Transaction timed out waiting for finalization */
+export class TxTimeoutError extends TransactionError {
+  constructor(txHash: string, timeoutMs: number) {
+    super(`Transaction ${txHash} not finalized within ${timeoutMs}ms`)
+    this.name = 'TxTimeoutError'
+  }
+}
+
+/** Nonce collision — account nonce is too low */
+export class NonceTooLowError extends TransactionError {
+  readonly expectedNonce: number
+  readonly actualNonce: number
+
+  constructor(expected: number, actual: number) {
+    super(`Nonce too low: expected >= ${expected}, got ${actual}`)
+    this.name = 'NonceTooLowError'
+    this.expectedNonce = expected
+    this.actualNonce = actual
+  }
+}
+
+/** Task not found */
+export class TaskNotFoundError extends NotFoundError {
+  constructor(taskId: string) {
+    super('Task', taskId)
+    this.name = 'TaskNotFoundError'
+  }
+}
+
+/** Service not found */
+export class ServiceNotFoundError extends NotFoundError {
+  constructor(serviceId: string) {
+    super('Service', serviceId)
+    this.name = 'ServiceNotFoundError'
+  }
+}
+
+/** Governance proposal not found */
+export class ProposalNotFoundError extends NotFoundError {
+  constructor(proposalId: number) {
+    super('Proposal', String(proposalId))
+    this.name = 'ProposalNotFoundError'
+  }
+}
+
+/** IBC-related error */
+export class IbcError extends ClawChainError {
+  constructor(message: string, cause?: unknown) {
+    super(message, 'IBC_ERROR', cause)
+    this.name = 'IbcError'
+  }
+}
+
+/** Messaging-related error */
+export class MessagingError extends ClawChainError {
+  constructor(message: string, cause?: unknown) {
+    super(message, 'MESSAGING_ERROR', cause)
+    this.name = 'MessagingError'
+  }
+}
+
+/** Emergency pause is active — all write operations are blocked */
+export class EmergencyPauseError extends ClawChainError {
+  constructor() {
+    super('Chain is in emergency pause mode — write operations are blocked', 'EMERGENCY_PAUSE')
+    this.name = 'EmergencyPauseError'
+  }
+}

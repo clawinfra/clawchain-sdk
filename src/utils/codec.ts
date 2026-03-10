@@ -2,10 +2,11 @@
  * Codec helpers for decoding Polkadot/Substrate types into SDK types
  */
 
-import type { AgentInfo, AgentStatus } from '../types/agent.js'
+import type { AgentInfo, AgentStatus, DidDocument } from '../types/agent.js'
 import type { ReputationInfo } from '../types/reputation.js'
 import type { QuotaInfo, QuotaTier } from '../types/quota.js'
 import type { TokenBalance } from '../types/token.js'
+import type { DidInfo } from '../types/did.js'
 
 /**
  * Decode a raw agentRegistry storage value into AgentInfo.
@@ -59,6 +60,29 @@ export function decodeQuotaInfo(accountId: string, raw: any): QuotaInfo {
     limit: BigInt(data['limit'] ?? 0),
     resetBlock: Number(data['resetBlock'] ?? 0),
     tier: (data['tier'] as QuotaTier) ?? 'Basic',
+  }
+}
+
+/** Decode a raw agentDid storage value into DidInfo */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function decodeDidInfo(did: string, raw: any): DidInfo {
+  const isCodec = typeof raw.toJSON === 'function'
+  const data = isCodec ? (raw.toJSON() as Record<string, unknown>) : raw
+
+  const document = (data['document'] as DidDocument | undefined) ?? {
+    '@context': ['https://www.w3.org/ns/did/v1'],
+    id: did,
+    verificationMethod: [],
+    service: [],
+  }
+
+  return {
+    did,
+    agentId: String(data['agentId'] ?? data['agent_id'] ?? ''),
+    owner: String(data['owner'] ?? ''),
+    document,
+    createdAtBlock: Number(data['createdAtBlock'] ?? data['created_at_block'] ?? 0),
+    updatedAtBlock: Number(data['updatedAtBlock'] ?? data['updated_at_block'] ?? 0),
   }
 }
 

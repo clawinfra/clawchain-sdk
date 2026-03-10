@@ -41,3 +41,15 @@ export interface HistoryOpts extends PaginationOpts {
   fromBlock?: number
   toBlock?: number
 }
+
+/** Parameters for submitting feedback/attestation (v2) */
+export interface SubmitFeedbackParams {
+  /** Target agent ID or SS58 address */
+  target: string
+  /** Whether the feedback is positive */
+  isPositive: boolean
+  /** Reference ID (task ID, service ID, etc.) */
+  referenceId?: string
+  /** Optional comment stored as hash (not plaintext) */
+  commentHash?: string
+}

@@ -1,0 +1,55 @@
+{
+  "version": 2,
+  "task": "Build ClawChain Agent SDK v2.0: full write API, tx signing, all 12 pallets, event subscriptions, 90%+ coverage, publish to npm",
+  "workspace": "/tmp/clawchain-sdk",
+  "created_at": "2026-03-09T11:42:06.335687+00:00",
+  "current_phase": null,
+  "config": {
+    "models": {
+      "plan": "anthropic/claude-opus-4-6",
+      "build": "anthropic/claude-sonnet-4-6",
+      "review": "anthropic/claude-sonnet-4-6"
+    },
+    "timeout": 600,
+    "retries": 1
+  },
+  "phases": {
+    "plan": {
+      "name": "plan",
+      "status": "completed",
+      "started_at": "2026-03-09T11:42:06.336127+00:00",
+      "completed_at": "2026-03-09T22:07:32.369820+00:00",
+      "duration_seconds": 37526.033693,
+      "artifacts": [
+        "PLAN.md"
+      ],
+      "attempt": 1,
+      "error": null
+    },
+    "build": {
+      "name": "build",
+      "status": "completed",
+      "started_at": "2026-03-09T22:07:37.198796+00:00",
+      "completed_at": "2026-03-09T22:24:05.761264+00:00",
+      "duration_seconds": 988.562468,
+      "artifacts": [
+        "REVIEW.md"
+      ],
+      "attempt": 1,
+      "error": null
+    },
+    "review": {
+      "name": "review",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "duration_seconds": null,
+      "artifacts": [],
+      "attempt": 0,
+      "error": null
+    }
+  },
+  "iteration": 1,
+  "max_iterations": 2,
+  "review_verdict": null
+}

@@ -1,11 +1,12 @@
 /**
- * TokenModule — CLW token queries (claw-token pallet / system.account)
+ * TokenModule — CLW token queries and transfers (claw-token pallet / system.account)
  */
 
 import type { ApiPromise } from '@polkadot/api'
 import { InvalidArgumentError } from '../errors.js'
 import type { Logger } from '../types/common.js'
-import type { TokenBalance, TokenMetadata, TransferOpts } from '../types/token.js'
+import type { TokenBalance, TokenMetadata } from '../types/token.js'
+import { TransactionBuilder } from '../tx/builder.js'
 import { decodeTokenBalance } from '../utils/codec.js'
 
 export class TokenModule {
@@ -65,20 +66,61 @@ export class TokenModule {
     }
   }
 
+  // ── Write methods (v2) ────────────────────────────────────────────────────
+
   /**
-   * Transfer CLW tokens. (Phase 2 — requires signer)
-   * @throws {Error} Not yet implemented in Phase 1
+   * Transfer CLW tokens to an address (keeps sender account alive).
+   * Pallet call: balances.transferKeepAlive(to, amount)
+   *
+   * @example
+   * ```ts
+   * const result = await client.token
+   *   .transfer('5GrwvaEF...', 1_000_000_000_000_000_000n)
+   *   .signAndSend(signer)
+   * ```
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async transfer(_to: string, _amount: bigint, _signer: unknown, _opts?: TransferOpts): Promise<never> {
-    throw new Error('transfer() is available in Phase 2 (write API). Use clawchain-sdk >= 0.2.0')
+  transfer(to: string, amount: bigint): TransactionBuilder<void> {
+    if (!to) throw new InvalidArgumentError('to address is required')
+    if (amount <= 0n) throw new InvalidArgumentError('amount must be greater than 0')
+
+    this.logger.debug('TokenModule.transfer', { to, amount: amount.toString() })
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const extrinsic = (this.api.tx as any)['balances']['transferKeepAlive'](to, amount)
+
+    return new TransactionBuilder<void>(this.api, extrinsic, undefined, this.logger)
   }
 
   /**
-   * Transfer with memo. (Phase 2)
+   * Transfer CLW — allows sender account to be reaped (balance → 0).
+   * Pallet call: balances.transferAllowDeath(to, amount)
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async transferWithNote(_to: string, _amount: bigint, _note: string, _signer: unknown): Promise<never> {
-    throw new Error('transferWithNote() is available in Phase 2 (write API). Use clawchain-sdk >= 0.2.0')
+  transferAllowDeath(to: string, amount: bigint): TransactionBuilder<void> {
+    if (!to) throw new InvalidArgumentError('to address is required')
+    if (amount <= 0n) throw new InvalidArgumentError('amount must be greater than 0')
+
+    this.logger.debug('TokenModule.transferAllowDeath', { to, amount: amount.toString() })
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const extrinsic = (this.api.tx as any)['balances']['transferAllowDeath'](to, amount)
+
+    return new TransactionBuilder<void>(this.api, extrinsic, undefined, this.logger)
+  }
+
+  /**
+   * Transfer all free balance to an address.
+   * Pallet call: balances.transferAll(to, keepAlive)
+   *
+   * @param keepAlive - Keep sender alive by retaining existential deposit (default: true)
+   */
+  transferAll(to: string, keepAlive = true): TransactionBuilder<void> {
+    if (!to) throw new InvalidArgumentError('to address is required')
+
+    this.logger.debug('TokenModule.transferAll', { to, keepAlive })
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const extrinsic = (this.api.tx as any)['balances']['transferAll'](to, keepAlive)
+
+    return new TransactionBuilder<void>(this.api, extrinsic, undefined, this.logger)
   }
 }

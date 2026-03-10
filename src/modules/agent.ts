@@ -1,5 +1,5 @@
 /**
- * AgentModule — agent-registry and agent-DID pallet queries
+ * AgentModule — agent-registry and agent-DID pallet queries + write operations (v2)
  */
 
 import type { ApiPromise } from '@polkadot/api'
@@ -7,6 +7,7 @@ import { AgentNotFoundError, InvalidArgumentError } from '../errors.js'
 import type { AgentId, AgentInfo, RegisterAgentParams, UpdateAgentParams } from '../types/agent.js'
 import type { PagedResult, PaginationOpts } from '../types/common.js'
 import type { Logger } from '../types/common.js'
+import { TransactionBuilder } from '../tx/builder.js'
 import { decodeAgentInfo } from '../utils/codec.js'
 
 export class AgentModule {
@@ -141,30 +142,109 @@ export class AgentModule {
     }
   }
 
-  // ── Phase 2 stubs (transactions) ───────────────────────────────────────────
+  // ── Write methods (v2) ────────────────────────────────────────────────────
 
   /**
-   * Register a new agent on-chain. (Phase 2 — requires signer)
-   * @throws {Error} Not yet implemented in Phase 1
+   * Register a new agent on-chain.
+   * Pallet call: agentRegistry.registerAgent(name, description, endpoint, capabilities)
+   *
+   * @returns TransactionBuilder<AgentInfo>
+   *
+   * @example
+   * ```ts
+   * const result = await client.agent
+   *   .register({ name: 'MyAgent', description: '...', endpoint: 'https://...' })
+   *   .signAndSend(signer)
+   * ```
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async register(_params: RegisterAgentParams, _signer: unknown): Promise<never> {
-    throw new Error('register() is available in Phase 2 (write API). Use clawchain-sdk >= 0.2.0')
+  register(params: RegisterAgentParams): TransactionBuilder<AgentInfo> {
+    if (!params.name) throw new InvalidArgumentError('name is required')
+    if (!params.endpoint) throw new InvalidArgumentError('endpoint is required')
+
+    this.logger.debug('AgentModule.register', { name: params.name })
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const extrinsic = (this.api.tx as any)['agentRegistry']['registerAgent'](
+      params.name,
+      params.description ?? '',
+      params.endpoint,
+      params.capabilities ?? [],
+    )
+
+    return new TransactionBuilder<AgentInfo>(
+      this.api,
+      extrinsic,
+      (events) => {
+        const event = events.find(
+          (e) => e.pallet === 'agentRegistry' && e.method === 'AgentRegistered',
+        )
+        const agentId = String(event?.data['agentId'] ?? event?.data['id'] ?? '')
+        return {
+          id: agentId,
+          owner: '',
+          did: `did:clawchain:${agentId}`,
+          name: params.name,
+          description: params.description ?? '',
+          endpoint: params.endpoint,
+          capabilities: params.capabilities ?? [],
+          status: 'Active',
+          registeredAt: 0,
+          updatedAt: 0,
+          reputationScore: 0,
+        }
+      },
+      this.logger,
+    )
   }
 
   /**
-   * Update agent metadata on-chain. (Phase 2)
+   * Update an existing agent's metadata.
+   * Pallet call: agentRegistry.updateAgent(agentId, name?, description?, endpoint?, capabilities?)
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async update(_agentId: AgentId, _params: UpdateAgentParams, _signer: unknown): Promise<never> {
-    throw new Error('update() is available in Phase 2 (write API). Use clawchain-sdk >= 0.2.0')
+  update(agentId: AgentId, params: UpdateAgentParams): TransactionBuilder<void> {
+    if (!agentId) throw new InvalidArgumentError('agentId is required')
+
+    this.logger.debug('AgentModule.update', { agentId })
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const extrinsic = (this.api.tx as any)['agentRegistry']['updateAgent'](
+      agentId,
+      params.name ?? null,
+      params.description ?? null,
+      params.endpoint ?? null,
+      params.capabilities ?? null,
+    )
+
+    return new TransactionBuilder<void>(this.api, extrinsic, undefined, this.logger)
   }
 
   /**
-   * Deactivate an agent on-chain. (Phase 2)
+   * Deactivate an agent (soft-delete, reversible).
+   * Pallet call: agentRegistry.deactivateAgent(agentId)
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async deactivate(_agentId: AgentId, _signer: unknown): Promise<never> {
-    throw new Error('deactivate() is available in Phase 2 (write API). Use clawchain-sdk >= 0.2.0')
+  deactivate(agentId: AgentId): TransactionBuilder<void> {
+    if (!agentId) throw new InvalidArgumentError('agentId is required')
+
+    this.logger.debug('AgentModule.deactivate', { agentId })
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const extrinsic = (this.api.tx as any)['agentRegistry']['deactivateAgent'](agentId)
+
+    return new TransactionBuilder<void>(this.api, extrinsic, undefined, this.logger)
+  }
+
+  /**
+   * Reactivate a previously deactivated agent.
+   * Pallet call: agentRegistry.reactivateAgent(agentId)
+   */
+  reactivate(agentId: AgentId): TransactionBuilder<void> {
+    if (!agentId) throw new InvalidArgumentError('agentId is required')
+
+    this.logger.debug('AgentModule.reactivate', { agentId })
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const extrinsic = (this.api.tx as any)['agentRegistry']['reactivateAgent'](agentId)
+
+    return new TransactionBuilder<void>(this.api, extrinsic, undefined, this.logger)
   }
 }

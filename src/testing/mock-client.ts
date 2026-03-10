@@ -19,9 +19,11 @@
 
 import type { ApiPromise } from '@polkadot/api'
 import { AgentModule } from '../modules/agent.js'
+import { DidModule } from '../modules/did.js'
 import { QuotaModule } from '../modules/quota.js'
 import { ReputationModule } from '../modules/reputation.js'
 import { TokenModule } from '../modules/token.js'
+import { BatchBuilder } from '../tx/batch.js'
 import type { AgentInfo } from '../types/agent.js'
 import type { ReputationInfo } from '../types/reputation.js'
 import type { QuotaInfo } from '../types/quota.js'
@@ -43,9 +45,11 @@ export interface MockClientOptions {
 
 export interface MockClawChainClient {
   agent: AgentModule
+  did: DidModule
   reputation: ReputationModule
   quota: QuotaModule
   token: TokenModule
+  tx: { batch(): BatchBuilder }
   health(): Promise<HealthStatus>
   isConnected(): boolean
   disconnect(): Promise<void>
@@ -61,6 +65,7 @@ export function createMockClient(opts: MockClientOptions = {}): MockClawChainCli
   const api = createMockApi(opts) as ApiPromise
 
   const agentModule = new AgentModule(api, logger)
+  const didModule = new DidModule(api, logger)
   const reputationModule = new ReputationModule(api, logger)
   const quotaModule = new QuotaModule(api, logger)
   const tokenModule = new TokenModule(api, logger)
@@ -70,9 +75,13 @@ export function createMockClient(opts: MockClientOptions = {}): MockClawChainCli
 
   return {
     agent: agentModule,
+    did: didModule,
     reputation: reputationModule,
     quota: quotaModule,
     token: tokenModule,
+    tx: {
+      batch: () => new BatchBuilder(api, logger),
+    },
 
     async health(): Promise<HealthStatus> {
       return {

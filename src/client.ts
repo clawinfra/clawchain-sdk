@@ -9,10 +9,13 @@
 import { ApiPromise, WsProvider } from '@polkadot/api'
 import { ConnectionError, TimeoutError } from './errors.js'
 import { AgentModule } from './modules/agent.js'
+import { DidModule } from './modules/did.js'
 import { QuotaModule } from './modules/quota.js'
 import { ReputationModule } from './modules/reputation.js'
 import { TokenModule } from './modules/token.js'
 import type { Logger } from './types/common.js'
+import { BatchBuilder } from './tx/batch.js'
+import type { ClawChainSigner } from './signer/types.js'
 import { noopLogger } from './utils/logger.js'
 import { retry } from './utils/retry.js'
 
@@ -28,6 +31,10 @@ export interface ConnectOptions {
   maxReconnectAttempts?: number
   /** Inject a custom logger */
   logger?: Logger
+  /** Default signer for convenience (optional — can be passed per-tx) */
+  signer?: ClawChainSigner
+  /** Expected genesis hash — rejects connection if mismatched */
+  genesisHash?: string
 }
 
 /** Node health and sync status */
@@ -52,8 +59,11 @@ export class ClawChainClient {
   private readonly _logger: Logger
   private readonly _timeoutMs: number
 
-  /** Agent registry and DID module */
+  /** Agent registry module */
   readonly agent: AgentModule
+
+  /** DID module (v2 — split from agent) */
+  readonly did: DidModule
 
   /** Reputation module */
   readonly reputation: ReputationModule
@@ -64,15 +74,22 @@ export class ClawChainClient {
   /** CLW token module */
   readonly token: TokenModule
 
+  /** Transaction utilities — batch builder */
+  readonly tx: { batch(): BatchBuilder }
+
   private constructor(api: ApiPromise, opts: ConnectOptions) {
     this._api = api
     this._logger = opts.logger ?? noopLogger
     this._timeoutMs = opts.timeoutMs ?? 30_000
 
     this.agent = new AgentModule(api, this._logger)
+    this.did = new DidModule(api, this._logger)
     this.reputation = new ReputationModule(api, this._logger)
     this.quota = new QuotaModule(api, this._logger)
     this.token = new TokenModule(api, this._logger)
+    this.tx = {
+      batch: () => new BatchBuilder(api, this._logger),
+    }
   }
 
   /**

@@ -115,20 +115,54 @@ describe('AgentModule.listAgents', () => {
   })
 })
 
-describe('AgentModule phase-2 stubs', () => {
+describe('AgentModule write methods (v2)', () => {
   const client = createMockClient()
 
-  it('register throws Phase 2 error', async () => {
-    await expect(
-      client.agent.register({ name: 'x', description: 'x', endpoint: 'http://x' }, null),
-    ).rejects.toThrow(/Phase 2/)
+  it('register() returns TransactionBuilder', () => {
+    const builder = client.agent.register({ name: 'MyAgent', description: 'test', endpoint: 'https://x.com' })
+    expect(builder).toBeDefined()
+    expect(typeof builder.signAndSend).toBe('function')
+    expect(typeof builder.dryRun).toBe('function')
+    expect(typeof builder.sign).toBe('function')
   })
 
-  it('update throws Phase 2 error', async () => {
-    await expect(client.agent.update('0x' + 'aa'.repeat(32), {}, null)).rejects.toThrow(/Phase 2/)
+  it('register() throws InvalidArgumentError for missing name', () => {
+    expect(() => client.agent.register({ name: '', description: 'x', endpoint: 'http://x' }))
+      .toThrow(/name is required/)
   })
 
-  it('deactivate throws Phase 2 error', async () => {
-    await expect(client.agent.deactivate('0x' + 'aa'.repeat(32), null)).rejects.toThrow(/Phase 2/)
+  it('register() throws InvalidArgumentError for missing endpoint', () => {
+    expect(() => client.agent.register({ name: 'x', description: 'x', endpoint: '' }))
+      .toThrow(/endpoint is required/)
+  })
+
+  it('update() returns TransactionBuilder', () => {
+    const builder = client.agent.update('0x' + 'aa'.repeat(32), { name: 'NewName' })
+    expect(builder).toBeDefined()
+    expect(typeof builder.signAndSend).toBe('function')
+  })
+
+  it('update() throws InvalidArgumentError for empty agentId', () => {
+    expect(() => client.agent.update('', { name: 'x' })).toThrow(/agentId is required/)
+  })
+
+  it('deactivate() returns TransactionBuilder', () => {
+    const builder = client.agent.deactivate('0x' + 'aa'.repeat(32))
+    expect(builder).toBeDefined()
+    expect(typeof builder.signAndSend).toBe('function')
+  })
+
+  it('deactivate() throws InvalidArgumentError for empty agentId', () => {
+    expect(() => client.agent.deactivate('')).toThrow(/agentId is required/)
+  })
+
+  it('reactivate() returns TransactionBuilder', () => {
+    const builder = client.agent.reactivate('0x' + 'aa'.repeat(32))
+    expect(builder).toBeDefined()
+    expect(typeof builder.signAndSend).toBe('function')
+  })
+
+  it('reactivate() throws InvalidArgumentError for empty agentId', () => {
+    expect(() => client.agent.reactivate('')).toThrow(/agentId is required/)
   })
 })

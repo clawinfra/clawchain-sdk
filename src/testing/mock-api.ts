@@ -69,6 +69,83 @@ function makeScalar(value: unknown) {
   }
 }
 
+/** Status callback types used by mock extrinsic */
+export type MockTxResultCallback = (result: {
+  status: {
+    isBroadcast: boolean
+    isInBlock: boolean
+    isFinalized: boolean
+    isDropped: boolean
+    isInvalid: boolean
+    asInBlock?: { toHex: () => string }
+    asFinalized?: { toHex: () => string }
+    type: string
+  }
+  events: unknown[]
+  dispatchError?: unknown
+}) => void
+
+/** Create a mock extrinsic that fires finalized callback */
+function makeMockExtrinsic() {
+  return {
+    hash: { toHex: () => '0xabcdef01' + '00'.repeat(28) },
+    toHex: () => '0xdeadbeef',
+    toU8a: () => new Uint8Array(32),
+    method: { toU8a: () => new Uint8Array(4) },
+    sign: function () { return this },
+    addSignature: function () { return this },
+    signAndSend: async (_account: unknown, _opts: unknown, callback: MockTxResultCallback) => {
+      // fire inBlock then finalized
+      setTimeout(() => {
+        callback({
+          status: {
+            isBroadcast: false,
+            isInBlock: true,
+            isFinalized: false,
+            isDropped: false,
+            isInvalid: false,
+            asInBlock: { toHex: () => '0x' + 'aa'.repeat(32) },
+            type: 'InBlock',
+          },
+          events: [],
+        })
+      }, 0)
+      setTimeout(() => {
+        callback({
+          status: {
+            isBroadcast: false,
+            isInBlock: false,
+            isFinalized: true,
+            isDropped: false,
+            isInvalid: false,
+            asFinalized: { toHex: () => '0x' + 'bb'.repeat(32) },
+            type: 'Finalized',
+          },
+          events: [],
+        })
+      }, 10)
+      return () => { /* unsub */ }
+    },
+    send: async (callback: MockTxResultCallback) => {
+      setTimeout(() => {
+        callback({
+          status: {
+            isBroadcast: false,
+            isInBlock: false,
+            isFinalized: true,
+            isDropped: false,
+            isInvalid: false,
+            asFinalized: { toHex: () => '0x' + 'cc'.repeat(32) },
+            type: 'Finalized',
+          },
+          events: [],
+        })
+      }, 10)
+      return () => { /* unsub */ }
+    },
+  }
+}
+
 /** Build a mock ApiPromise compatible object */
 export function createMockApi(opts: MockApiOptions = {}): unknown {
   const {
@@ -107,6 +184,13 @@ export function createMockApi(opts: MockApiOptions = {}): unknown {
           isSyncing: makeScalar(false),
         }),
         version: async () => makeScalar(nodeVersion),
+        accountNextIndex: async (_address: string) => makeScalar(0),
+      },
+      payment: {
+        queryInfo: async (_hex: string) => makeCodec({
+          partialFee: 1_000_000_000_000n,
+          weight: { refTime: 100_000_000, proofSize: 0 },
+        }),
       },
     },
 
@@ -153,6 +237,17 @@ export function createMockApi(opts: MockApiOptions = {}): unknown {
           if (!agent) return makeNone()
           return makeSome({ agentId: agent.id })
         },
+        agentDids: async (agentId: string) => {
+          const agent = agentById.get(agentId)
+          if (!agent) return makeNone()
+          return makeSome({ did: agent.did })
+        },
+        ownerDids: async (owner: string) => {
+          const ownerDids = agents
+            .filter((a) => a.owner === owner)
+            .map((a) => a.did)
+          return makeVec(ownerDids)
+        },
       },
       reputation: {
         reputations: Object.assign(
@@ -179,6 +274,29 @@ export function createMockApi(opts: MockApiOptions = {}): unknown {
         },
       },
     },
+
+    // v2: tx submission mock
+    tx: new Proxy({} as Record<string, Record<string, () => unknown>>, {
+      get: (_target, pallet: string) => {
+        return new Proxy({} as Record<string, () => unknown>, {
+          get: (_t, method: string) => {
+            return (..._args: unknown[]) => {
+              const ex = makeMockExtrinsic()
+              return ex
+            }
+          },
+        })
+      },
+    }),
+
+    // v2: createType stub
+    createType: (_type: string, _value?: unknown) => ({
+      toRaw: () => ({ data: '0x' + '00'.repeat(64) }),
+      toPayload: () => ({}),
+    }),
+
+    // v2: extrinsicVersion
+    extrinsicVersion: 4,
 
     disconnect: async () => undefined,
   }

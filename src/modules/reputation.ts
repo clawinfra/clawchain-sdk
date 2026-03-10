@@ -1,12 +1,13 @@
 /**
- * ReputationModule — reputation pallet queries
+ * ReputationModule — reputation pallet queries and write operations (v2)
  */
 
 import type { ApiPromise } from '@polkadot/api'
 import { InvalidArgumentError } from '../errors.js'
 import type { AgentId } from '../types/agent.js'
 import type { Logger, PagedResult } from '../types/common.js'
-import type { HistoryOpts, ReputationEvent, ReputationInfo, ReputationRanking } from '../types/reputation.js'
+import type { HistoryOpts, ReputationEvent, ReputationInfo, ReputationRanking, SubmitFeedbackParams } from '../types/reputation.js'
+import { TransactionBuilder } from '../tx/builder.js'
 import { decodeReputationInfo } from '../utils/codec.js'
 
 export class ReputationModule {
@@ -111,5 +112,37 @@ export class ReputationModule {
       accountId: info.accountId,
       score: info.score,
     }))
+  }
+
+  // ── Write methods (v2) ────────────────────────────────────────────────────
+
+  /**
+   * Submit feedback / attestation for an agent or account.
+   * Pallet call: reputation.submitFeedback(target, isPositive, referenceId?, commentHash?)
+   *
+   * @example
+   * ```ts
+   * await client.reputation
+   *   .submitFeedback({ target: agentId, isPositive: true, referenceId: taskId })
+   *   .signAndSend(signer)
+   * ```
+   */
+  submitFeedback(params: SubmitFeedbackParams): TransactionBuilder<void> {
+    if (!params.target) throw new InvalidArgumentError('target is required')
+
+    this.logger.debug('ReputationModule.submitFeedback', {
+      target: params.target,
+      isPositive: params.isPositive,
+    })
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const extrinsic = (this.api.tx as any)['reputation']['submitFeedback'](
+      params.target,
+      params.isPositive,
+      params.referenceId ?? null,
+      params.commentHash ?? null,
+    )
+
+    return new TransactionBuilder<void>(this.api, extrinsic, undefined, this.logger)
   }
 }

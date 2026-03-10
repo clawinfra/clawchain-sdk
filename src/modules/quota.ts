@@ -1,5 +1,5 @@
 /**
- * QuotaModule — gas-quota pallet queries
+ * QuotaModule — gas-quota pallet queries and write operations (v2)
  */
 
 import type { ApiPromise } from '@polkadot/api'
@@ -10,8 +10,10 @@ import type {
   OperationType,
   QuotaHistoryOpts,
   QuotaInfo,
+  QuotaTier,
   QuotaUsageEvent,
 } from '../types/quota.js'
+import { TransactionBuilder } from '../tx/builder.js'
 import { decodeQuotaInfo } from '../utils/codec.js'
 
 /** Hard-coded gas estimates per operation type (Phase 1 — static) */
@@ -98,5 +100,47 @@ export class QuotaModule {
       total: 0,
       hasMore: false,
     }
+  }
+
+  // ── Write methods (v2) ────────────────────────────────────────────────────
+
+  /**
+   * Request additional gas quota (may require CLW payment depending on tier).
+   * Pallet call: gasQuota.requestQuota(amount)
+   *
+   * @example
+   * ```ts
+   * await client.quota.requestQuota(1_000_000n).signAndSend(signer)
+   * ```
+   */
+  requestQuota(amount: bigint): TransactionBuilder<void> {
+    if (amount <= 0n) throw new InvalidArgumentError('amount must be greater than 0')
+
+    this.logger.debug('QuotaModule.requestQuota', { amount: amount.toString() })
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const extrinsic = (this.api.tx as any)['gasQuota']['requestQuota'](amount)
+
+    return new TransactionBuilder<void>(this.api, extrinsic, undefined, this.logger)
+  }
+
+  /**
+   * Upgrade quota tier (e.g. Basic → Standard → Premium).
+   * Pallet call: gasQuota.upgradeTier(tier)
+   *
+   * @example
+   * ```ts
+   * await client.quota.upgradeTier('Premium').signAndSend(signer)
+   * ```
+   */
+  upgradeTier(tier: QuotaTier): TransactionBuilder<void> {
+    if (!tier) throw new InvalidArgumentError('tier is required')
+
+    this.logger.debug('QuotaModule.upgradeTier', { tier })
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const extrinsic = (this.api.tx as any)['gasQuota']['upgradeTier'](tier)
+
+    return new TransactionBuilder<void>(this.api, extrinsic, undefined, this.logger)
   }
 }
