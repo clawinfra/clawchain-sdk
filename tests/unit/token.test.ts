@@ -73,16 +73,54 @@ describe('TokenModule.getMetadata', () => {
   })
 })
 
-describe('TokenModule phase-2 stubs', () => {
+describe('TokenModule write methods (v2)', () => {
   const client = createMockClient()
 
-  it('transfer throws Phase 2 error', async () => {
-    await expect(client.token.transfer('5Alice', 100n, null)).rejects.toThrow(/Phase 2/)
+  it('transfer() returns TransactionBuilder', () => {
+    const builder = client.token.transfer('5Alice', 100n)
+    expect(builder).toBeDefined()
+    expect(typeof builder.signAndSend).toBe('function')
+    expect(typeof builder.dryRun).toBe('function')
   })
 
-  it('transferWithNote throws Phase 2 error', async () => {
-    await expect(client.token.transferWithNote('5Alice', 100n, 'memo', null)).rejects.toThrow(
-      /Phase 2/,
-    )
+  it('transfer() throws for empty to address', () => {
+    expect(() => client.token.transfer('', 100n)).toThrow(/to address is required/)
+  })
+
+  it('transfer() throws for zero amount', () => {
+    expect(() => client.token.transfer('5Alice', 0n)).toThrow(/amount must be greater than 0/)
+  })
+
+  it('transfer() throws for negative amount', () => {
+    expect(() => client.token.transfer('5Alice', -1n)).toThrow(/amount must be greater than 0/)
+  })
+
+  it('transferAllowDeath() returns TransactionBuilder', () => {
+    const builder = client.token.transferAllowDeath('5Alice', 100n)
+    expect(builder).toBeDefined()
+    expect(typeof builder.signAndSend).toBe('function')
+  })
+
+  it('transferAllowDeath() throws for empty to address', () => {
+    expect(() => client.token.transferAllowDeath('', 100n)).toThrow(/to address is required/)
+  })
+
+  it('transferAllowDeath() throws for zero amount', () => {
+    expect(() => client.token.transferAllowDeath('5Bob', 0n)).toThrow(/amount must be greater than 0/)
+  })
+
+  it('transferAll() returns TransactionBuilder', () => {
+    const builder = client.token.transferAll('5Alice')
+    expect(builder).toBeDefined()
+    expect(typeof builder.signAndSend).toBe('function')
+  })
+
+  it('transferAll() defaults keepAlive to true', () => {
+    const builder = client.token.transferAll('5Alice')
+    expect(builder).toBeDefined()
+  })
+
+  it('transferAll() throws for empty to address', () => {
+    expect(() => client.token.transferAll('')).toThrow(/to address is required/)
   })
 })

@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.0.0-alpha.1] - 2026-03-10
+
+### Added
+- `ClawChainClient` single entry-point with signer abstraction (KeypairSigner, ExternalSigner, DelegateSigner)
+- `TransactionBuilder` fluent API: `dryRun()`, `signAndSend()`, `waitForFinality()`
+- Write methods for 4 core pallets: agent-registry, DID, claw-token, gas-quota
+- 10 typed error classes (SignerError, DispatchError, TxTimeoutError, etc.)
+
+### Breaking Changes
+- See MIGRATION.md for v1→v2 upgrade guide
+
 ## [1.0.0] - 2026-02-27
 
 ### First Stable Release 🎉

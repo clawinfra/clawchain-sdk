@@ -9,6 +9,7 @@ export { createMockClient } from './mock-client.js'
 export type { MockClientOptions, MockClawChainClient } from './mock-client.js'
 export { createMockApi } from './mock-api.js'
 export type { MockApiOptions } from './mock-api.js'
+export { MockSigner, createMockSigner, DEFAULT_MOCK_ADDRESS } from './mock-signer.js'
 
 // Fixtures
 export { mockAgent, mockAgentList, MOCK_AGENT_ID, MOCK_OWNER_ADDRESS } from './fixtures/agents.js'
