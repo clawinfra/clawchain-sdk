@@ -4,7 +4,7 @@
 
 import { InvalidArgumentError } from '../errors.js'
 
-/** Validate an SS58 address (basic check — 47–48 chars, base58) */
+/** Validate an SS58 address (basic length-only sanity check — 35–50 chars; does NOT verify the base58 charset or checksum) */
 export function validateSS58(address: string): void {
   if (!address || address.length < 35 || address.length > 50) {
     throw new InvalidArgumentError(`Invalid SS58 address: ${address}`)
